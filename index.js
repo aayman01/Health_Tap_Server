@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -30,10 +30,28 @@ async function run() {
     await client.connect();
 
     const healthTapCollection = client.db("HealthTap").collection('services')
+    const bookedServiceCollection = client.db("HealthTap").collection('bookedService')
 
+   
+    // getting all the services
     app.get('/services',async(req, res) => {
       const cursor = healthTapCollection.find()
       const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    // getting services by id
+    app.get('/services/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await healthTapCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    // storing all booked service data in a new collection
+    app.post('/bookedservice',async(req,res)=> {
+      const newData = req.body;
+      const result = await bookedServiceCollection.insertOne(newData);
       res.send(result)
     })
 
