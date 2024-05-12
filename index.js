@@ -73,14 +73,22 @@ async function run() {
       res.send(result)
     })
 
-    // getting serive provider data by id
+    // getting service provider data by id
 
     app.get("/allServiceProvider/:id",async(req, res)=> {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
-      const result = await serviceProviderCollection.findOne(query).toArray();
+      const result = await serviceProviderCollection.find(query).toArray();
       res.send(result)
     });
+
+    // getting specific provider data by email
+    app.get('/data/:email',async(req, res)=>{
+      const email = req.params.email;
+      const query = { serviceProviderEmail : email};
+      const result = await serviceProviderCollection.find(query).toArray();
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
