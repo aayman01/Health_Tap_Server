@@ -60,10 +60,16 @@ async function run() {
     });
 
     // storing all service provider data in a new collection
-
     app.post('/serviceProvider', async(req, res) => {
       const newData = req.body;
       const result = await serviceProviderCollection.insertOne(newData);
+      res.send(result)
+    })
+
+    // getting all the service provider data
+
+    app.get('/allServiceProvider',async(req, res) => {
+      const result = await serviceProviderCollection.find().toArray();
       res.send(result)
     })
 
