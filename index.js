@@ -1,19 +1,15 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-
 // middlewars
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
-
-
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xrbh57q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xrbh57q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -60,46 +56,69 @@ async function run() {
     });
 
     // storing all service provider data in a new collection
-    app.post('/serviceProvider', async(req, res) => {
+    app.post("/serviceProvider", async (req, res) => {
       const newData = req.body;
       const result = await serviceProviderCollection.insertOne(newData);
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // getting all the service provider data
 
-    app.get('/allServiceProvider',async(req, res) => {
+    app.get("/allServiceProvider", async (req, res) => {
       const result = await serviceProviderCollection.find().toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // getting service provider data by id
 
-    app.get("/allServiceProvider/:id",async(req, res)=> {
+    app.get("/allServiceProvider/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id : new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await serviceProviderCollection.find(query).toArray();
-      res.send(result)
+      res.send(result);
     });
 
     // getting specific provider data by email
-    app.get('/data/:email',async(req, res)=>{
+    app.get("/data/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { serviceProviderEmail : email};
+      const query = { serviceProviderEmail: email };
       const result = await serviceProviderCollection.find(query).toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // delecting specific data
-    app.delete('/myService/:id',async(req, res)=>{
+    app.delete("/myService/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id : new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await serviceProviderCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // updating data
+    app.put("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsart: true };
+      const updatedData = {
+        $set: {
+          serviceImage: data.serviceImage,
+          serviceName: data.serviceName,
+          servicePrice: data.servicePrice,
+          serviceLocation: data.serviceLocation,
+          description: data.description,
+          serviceProviderImage: data.serviceProviderImage,
+          serviceProviderName: data.serviceProviderName,
+          serviceProviderEmail: data.serviceProviderEmail,
+        },
+      };
+      const result = await serviceProviderCollection.updateOne(
+        filter,
+        updatedData,
+        options
+      );
       res.send(result)
-    })
-
-
-
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -113,11 +132,10 @@ async function run() {
 }
 run().catch(console.dir);
 
+app.get("/", (req, res) => {
+  res.send("Health tap server is running...");
+});
 
-app.get('/',(req,res)=> {
-    res.send("Health tap server is running...")
-})
-
-app.listen(port,()=>{
-    console.log(`My port is running on ${port}`)
-})
+app.listen(port, () => {
+  console.log(`My port is running on ${port}`);
+});
