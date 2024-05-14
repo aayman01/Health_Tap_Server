@@ -69,7 +69,7 @@ async function run() {
       let query = {
         serviceName: { $regex: search, $options: "i" },
       };
-      
+
       const result = await serviceProviderCollection.find(query).toArray();
       res.send(result);
     });
@@ -122,18 +122,37 @@ async function run() {
         updatedData,
         options
       );
-      res.send(result)
+      res.send(result);
     });
 
+    // getting all booked services
+    app.get("/bookedService", async (req, res) => {
+      const cursor = bookedServiceCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
-    // getting all booked serive data
-    
+    // getting all booked serive data by email
     app.get("/bookedService/:email", async (req, res) => {
       const email = req.params.email;
       const query = { userEmail: email };
       const result = await bookedServiceCollection.find(query).toArray();
       res.send(result);
     });
+
+    // updating single data
+    app.patch('/updateservice/:id',async(req, res) => {
+      const id = req.params.id;
+      const status = req.body;
+      const query = {_id : new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          serviceStatus : status.value
+        },
+      };
+      const result = await bookedServiceCollection.updateOne(query, updatedDoc)
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
