@@ -63,9 +63,14 @@ async function run() {
     });
 
     // getting all the service provider data
-
+    // seacrhing specific data
     app.get("/allServiceProvider", async (req, res) => {
-      const result = await serviceProviderCollection.find().toArray();
+      const search = req.query.search;
+      let query = {
+        serviceName: { $regex: search, $options: "i" },
+      };
+      
+      const result = await serviceProviderCollection.find(query).toArray();
       res.send(result);
     });
 
